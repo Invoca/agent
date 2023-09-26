@@ -112,6 +112,12 @@ func (e *Executor) Run(ctx context.Context) (exitCode int) {
 		case <-e.cancelCh:
 			e.shell.Commentf("Received cancellation signal, interrupting")
 			e.shell.Interrupt()
+			// Expose canceled job env var so the pre-exit hook can access it.
+			// If there is no error this will be unset.
+			e.shell.Env.Set(
+				"BUILDKITE_JOB_CANCELED",
+				"true",
+			)
 			cancel()
 		}
 	}()
